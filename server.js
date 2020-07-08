@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 
 const db = require("./app/models");
 const Role = db.role;
+const Category = db.category;
 console.log(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`);
 db.mongoose
   .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
@@ -41,6 +42,7 @@ db.mongoose
 
 require('./app/routes/auth.routes')(app);
 require('./app/routes/user.routes')(app);
+require('./app/routes/tutorial.routes')(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -79,6 +81,54 @@ function initial() {
         }
 
         console.log("added 'admin' to roles collection");
+      });
+    }
+  });
+
+  Category.estimatedDocumentCount((err, count) => {
+    if (!err && count === 0) {
+      // Add swift
+      new Category({
+        title: "Swift",
+        description: "For development iOS application"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+        console.log("added 'Swift' to category collection");
+      });
+
+      // Add swift
+      new Category({
+        title: "Kotlin",
+        description: "For development Android application"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+        console.log("added 'Kotlin' to category collection");
+      });
+
+      // Add swift
+      new Category({
+        title: "Java",
+        description: "For development Android application or BE side"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+        console.log("added 'Java' to category collection");
+      });
+
+      // Add swift
+      new Category({
+        title: "Node",
+        description: "For development Nodejs application"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+        console.log("added 'Node' to category collection");
       });
     }
   });

@@ -1,18 +1,11 @@
 const config = require("../config/auth.config");
 const db = require("../models");
+const response = require("../middlewares/response");
 const User = db.user;
 const Role = db.role;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-
-function getStandardResponse(status, message, data){
-    return {
-        status: status,
-        message : message,
-        data : data
-     }
-}
 
 exports.signup = (req, res) => {
     const user = new User({
@@ -23,7 +16,7 @@ exports.signup = (req, res) => {
   
     user.save((err, user) => {
       if (err) {
-        res.status(500).send(getStandardResponse(0, err, null));
+        res.status(500).send(response.format(0, err, null));
         return;
       }
   
@@ -34,18 +27,18 @@ exports.signup = (req, res) => {
           },
           (err, roles) => {
             if (err) {
-              res.status(500).send(getStandardResponse(0, err, null));
+              res.status(500).send(response.format(0, err, null));
               return;
             }
   
             user.roles = roles.map(role => role._id);
             user.save(err => {
               if (err) {
-                res.status(500).send(getStandardResponse(0, err, null));
+                res.status(500).send(response.format(0, err, null));
                 return;
               }
   
-              res.send(getStandardResponse(1, "User was registered successfully!", null));
+              res.send(response.format(1, "User was registered successfully!", null));
             });
           }
         );
@@ -59,11 +52,11 @@ exports.signup = (req, res) => {
           user.roles = [role._id];
           user.save(err => {
             if (err) {
-              res.status(500).send({ message: err });
+              res.status(500).send(response.format(0, err, null));
               return;
             }
   
-            res.send(getStandardResponse(1, "User was registered successfully!", null));
+            res.send(response.format(1, "User was registered successfully!", null));
           });
         });
       }
@@ -77,12 +70,12 @@ exports.signup = (req, res) => {
       .populate("roles", "-__v")
       .exec((err, user) => {
         if (err) {
-          res.status(500).send(getStandardResponse(0, err, null));
+          res.status(500).send(response.format(0, err, null));
           return;
         }
   
         if (!user) {
-          return res.status(404).send(getStandardResponse(0, "User not found!", null));
+          return res.status(404).send(response.format(0, "User not found!", null));
         }
   
         var passwordIsValid = bcrypt.compareSync(
@@ -91,7 +84,7 @@ exports.signup = (req, res) => {
         );
   
         if (!passwordIsValid) {
-          return res.status(401).send(getStandardResponse(0, "Password invalid", null));
+          return res.status(401).send(response.format(0, "Password invalid", null));
         }
   
         var token = jwt.sign({ id: user.id }, config.secret, {
@@ -112,6 +105,6 @@ exports.signup = (req, res) => {
             accessToken: token
           };
 
-        res.status(200).send(getStandardResponse(1, "Success", data));
+        res.status(200).send(response.format(1, "Success", data));
       });
   };
